@@ -1,0 +1,135 @@
+call plug#begin('~/.vim/plugged')
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-lua/plenary.nvim'
+Plug 'neovim/nvim-lspconfig'
+Plug 'preservim/nerdtree'
+Plug 'jiangmiao/auto-pairs'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'jose-elias-alvarez/null-ls.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make' }
+Plug 'jpalardy/vim-slime', { 'for': 'python' }
+Plug 'hanschen/vim-ipython-cell', { 'for': 'python' }
+Plug 'github/copilot.vim'
+Plug 'tpope/vim-surround'
+Plug 'rafi/awesome-vim-colorschemes'
+Plug 'tc50cal/vim-terminal'
+Plug 'preservim/tagbar'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+Plug 'ellisonleao/glow.nvim'
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
+Plug 'mhartington/formatter.nvim'
+Plug 'mbbill/undotree'
+Plug 'folke/lazy.nvim'
+Plug 'gelguy/wilder.nvim'
+Plug 'epwalsh/obsidian.nvim', { 'lazy': 1, 'for': 'markdown' }
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'tjdevries/apyrori.nvim'
+Plug 'mfussenegger/nvim-dap'
+Plug 'mfussenegger/nvim-dap-python'
+Plug 'kdheepak/lazygit.nvim'
+Plug 'nvim-tree/nvim-web-devicons'
+Plug 'Exafunction/codeium.vim'
+Plug 'zbirenbaum/copilot.lua', {'do': ':Copilot auth', 'on': 'InsertEnter'}
+Plug 'zbirenbaum/copilot-cmp'
+
+call plug#end()
+
+colorscheme molokai
+set encoding=UTF-8
+syntax enable
+set number
+filetype plugin indent on
+set conceallevel=2
+let g:airline_theme='molokai'
+let g:python3_host_prog = '/usr/bin/python3'
+
+lua << EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = "all",
+  highlight = {
+    enable = true,
+  },
+}
+require('glow').setup()
+require'lspconfig'.pyright.setup{}
+require('telescope').load_extension('fzf')
+EOF
+
+autocmd FileType python if exists(":IPythonCellStart") | call IPythonCell_Start() | endif
+
+set number
+set autoindent
+set tabstop=4
+set shiftwidth=4
+set smarttab
+set softtabstop=4
+set mouse=a
+set expandtab
+set scrolloff=8
+
+let g:NERDTreeGitStatusUseNerdFonts = 1
+nnoremap <C-f> :NERDTreeFocus<CR>
+nnoremap <C-n> :NERDTree<CR>
+nnoremap <C-t> :NERDTreeToggle<CR>
+
+nmap <F8> :TagbarToggle<CR>
+
+let g:NERDTreeDirArrowExpandable="+"
+let g:NERDTreeDirArrowCollapsible="~"
+let g:tagbar_ctags_bin = '/usr/bin/ctags'
+
+lua << EOF
+require('obsidian').setup({
+  workspaces = {
+    {
+        name = 'personal',
+        path = '~/vaults/personal',
+    },
+    {
+        name = 'work',
+        path = '~/vaults/work',
+    },
+  },
+  ui = {
+    enable = false,
+  },
+})
+EOF
+
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+call wilder#setup({
+      \ 'modes': [':', '/', '?'],
+      \ 'next_key': '<Tab>',
+      \ 'previous_key': '<S-Tab>',
+      \ 'accept_key': '<Down>',
+      \ 'reject_key': '<Up>',
+      \ })
+
+nmap <M-i> <plug>ApyroriInsert
+
+lua require('dap-python').setup('~/.virtualenvs/debugpy/bin/python')
+
+lua require('nvim-web-devicons').get_icons()
+lua << EOF
+require'nvim-web-devicons'.setup {
+  default = true;
+}
+EOF
+
+let g:codeium_disable_bindings = 1
+inoremap <M-c> <C-R>=codeium#Accept()<CR>
+inoremap <M--> <C-R>=codeium#CycleCompletions(1)<CR>
+inoremap <M-,> <C-R>=codeium#CycleCompletions(-1)<CR>
+inoremap <M-x> <C-R>=codeium#Clear()<CR>
+
+nnoremap <M-n> :call codeium#CycleCompletions(1)<CR>
+nnoremap <M-p> :call codeium#CycleCompletions(-1)<CR>
